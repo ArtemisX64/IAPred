@@ -1,0 +1,6 @@
+numpy
+biopython
+scikit-learn==1.5.2
+joblib
+#imbalanced-learn
+scipy

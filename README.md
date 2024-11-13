@@ -47,7 +47,7 @@ python IApred.py test.fasta test_results.csv
 
 ## 📊 Output Format
 
-### Console Output
+### Console Output verbous (default for files >25 sequences)
 ```
 Processing sequence: >Protein_X
 Intrinsic Antigenicity: 0.63 (High)
@@ -55,6 +55,19 @@ Low                        Moderate                        High
 [---------------------------|---0---|---------------------------]
                                        ^
                                      0.63
+```
+
+### Console Output quiet (default for files <25 sequences)
+```
+Processing FASTA file: test.fasta
+Found 120 sequences
+Processing: 120/120
+
+Antigenicity Summary:
+Low Antigenicity (score < -0.3): 18 sequences
+Moderate Antigenicity (-0.3 to 0.3): 29 sequences
+High Antigenicity (score > 0.3): 73 sequences
+
 ```
 
 ### CSV Output

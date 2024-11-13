@@ -238,7 +238,7 @@ def extract_features(sequence):
             return None, None
 
         # Add motif features
-        motifs = load_motifs('protein_motifs4.txt')
+        motifs = load_motifs('protein_motifs.txt')
         for motif_name, pattern in motifs.items():
             features[f"motif_{motif_name}"] = len(re.findall(pattern, sequence))
 

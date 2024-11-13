@@ -21,15 +21,6 @@ cd IApred
 # Install dependencies
 pip install -r requirements.txt
 ```
-
-## 🎯 Features
-
-- 🔍 Accurate prediction of protein antigenicity
-- 📊 Visual representation of antigenicity scores
-- 📝 Detailed CSV output for further analysis
-- 🧮 Support for both single sequences and batch processing
-- 🎨 ASCII and color visualization options (only on google colab)
-
 ## 📋 Requirements
 
 - Python 3.6+

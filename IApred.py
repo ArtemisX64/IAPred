@@ -79,7 +79,7 @@ def process_fasta_file(fasta_file, output_csv, model, scaler, variance_selector,
          open(output_csv, 'w', newline='', encoding='utf-8') as csv_file:
         
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(['Header', 'Sequence_Length', 'Intrinsic_Antigenicity_Score', 'Antigenicity_Category'])
+        csv_writer.writerow(['Header', 'Sequence_Length', 'IAScore', 'Antigenicity_Category'])
         
         # Parse sequences manually to handle Unicode safely
         sequences = []

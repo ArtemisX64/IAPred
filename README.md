@@ -10,7 +10,7 @@ IApred is a powerful tool for predicting the intrinsic antigenicity of pathogen 
 
 ### Option 1: Google Colab (No Installation Required)
 Try IApred instantly in your browser:
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebamiles/IAPred/blob/main/IApred-Colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sebamiles/IAPred/blob/main/IApred-colab.ipynb)
 
 ### Option 2: Local Installation
 ```bash

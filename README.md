@@ -15,7 +15,7 @@ Try IApred instantly in your browser:
 ### Option 2: Local Installation
 ```bash
 # Clone the repository
-git clone https://github.com/username/IApred.git
+git clone https://github.com/sebamiles/IApred.git
 cd IApred
 
 # Install dependencies

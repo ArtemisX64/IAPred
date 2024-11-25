@@ -127,23 +127,6 @@ def run_cross_validations(k, c, gamma):
     print(f"\nAll cross-validations completed in: {format_time(total_elapsed)}")
     return True
 
-def run_external_evaluation():
-    print("\nRunning External Evaluation...")
-    start_time = time.time()
-    
-    process = subprocess.run(['python', 'ExternalEval.py'],
-                           capture_output=True, text=True)
-    
-    elapsed_time = time.time() - start_time
-    print(f"External evaluation completed in: {format_time(elapsed_time)}")
-    
-    if process.returncode != 0:
-        print("Error in ExternalEval.py:")
-        print(process.stderr)
-        return False
-    print(process.stdout)
-    return True
-
 def main():
     total_start_time = time.time()
     
@@ -177,10 +160,6 @@ def main():
 
     if not run_cross_validations(k, c, gamma):
         print("Cross-validation evaluations failed")
-        return
-
-    if not run_external_evaluation():
-        print("External evaluation failed")
         return
 
     total_elapsed = time.time() - total_start_time

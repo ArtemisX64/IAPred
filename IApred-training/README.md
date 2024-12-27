@@ -8,7 +8,7 @@ Training pipeline for IApred (Intrinsic Antigenicity Predictor).
 
 ## 📋 Overview
 
-This repository contains the training pipeline for IApred's SVM-based model. All scripts can run independently or together via `run_training.py`.
+This repository contains the training pipeline for IApred's SVM-based model. All scripts can run independently or together via `run_training.py`. Feel free to modify the initial antigens and non-antigens in search for an improved model
 
 ## 🚀 Usage Options
 
@@ -19,13 +19,13 @@ python run_training.py
 ```
 
 ### Independent Mode
-Run scripts individually with parameters. In fo parameters are assigned, each script will run with the default values:
-- `k = 529` (number of features)
-- `c = 1` (SVM C parameter) 
-- `gamma = 0.01` (SVM gamma parameter)
+Run scripts individually with parameters. If no parameters are assigned, each script will run with the default values, obtained from executing run_training.py:
+- `--k` (number of features, default 529)
+- `--c` (SVM C parameter, default 1) 
+- `--gamma` (SVM gamma parameter, default 0.01)
 
 ```bash
-python model_parameters.py --k 529 --c 1 --gamma 0.01
+python 10fold_CV.py --k 150 --c 0.1 --gamma 0.1
 ```
 
 ## 📊 Pipeline Components
@@ -36,16 +36,16 @@ python model_parameters.py --k 529 --c 1 --gamma 0.01
 |--------|---------|--------|
 | `run_training.py` | Main pipeline orchestrator | `python run_training.py` |
 | `Find_best_k.py` | Optimal number of feature selection | `python Find_best_k.py` |
-| `Optimize_C_and_gamma.py` | SVM parameter optimization | `python Optimize_C_and_gamma.py --k 529` |
-| `model_parameters.py` | Model training and evaluation | `python model_parameters.py --k 529 --c 1 --gamma 0.01` |
+| `Optimize_C_and_gamma.py` | SVM parameter optimization | `python Optimize_C_and_gamma.py` |
+| `model_parameters.py` | Model training and evaluation | `python model_parameters.py ` |
 
 ### Evaluation Scripts
 
 | Script | Purpose | Usage |
 |--------|---------|--------|
-| `10fold_CV.py` | Standard cross-validation | `python 10fold_CV.py --k 529 --c 1 --gamma 0.01` |
-| `LOCO-CV.py` | Leave-One-Class-Out validation | `python LOCO-CV.py --k 529 --c 1 --gamma 0.01` |
-| `LOPO-CV.py` | Leave-One-Pathogen-Out validation | `python LOPO-CV.py --k 529 --c 1 --gamma 0.01` |
+| `10fold_CV.py` | Standard cross-validation | `python 10fold_CV.py` |
+| `LOCO-CV.py` | Leave-One-Class-Out validation | `python LOCO-CV.py` |
+| `LOPO-CV.py` | Leave-One-Pathogen-Out validation | `python LOPO-CV.py` |
 | `Internal_Evaluation.py` | Internal dataset evaluation | `python Internal_Evaluation.py` |
 | `External_Evaluation.py` | External dataset comparison | `python External_Evaluation.py` |
 

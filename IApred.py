@@ -79,7 +79,7 @@ def process_fasta_file(fasta_file, output_csv, model, scaler, variance_selector,
          open(output_csv, 'w', newline='', encoding='utf-8') as csv_file:
         
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(['Header', 'Sequence_Length', 'IAScore', 'Antigenicity_Category'])
+        csv_writer.writerow(['Header', 'Sequence_Length', 'Intrinsic_Antigenicity_Score', 'Antigenicity_Category'])
         
         # Parse sequences manually to handle Unicode safely
         sequences = []
@@ -209,12 +209,12 @@ def main():
         sys.exit(1)
 
     try:
-        svm_model = load(os.path.join(models_folder, 'AntigenPred_SVM.joblib'))
-        scaler = load(os.path.join(models_folder, 'AntigenPred_scaler.joblib'))
-        variance_selector = load(os.path.join(models_folder, 'AntigenPred_variance_selector.joblib'))
-        feature_selector = load(os.path.join(models_folder, 'AntigenPred_feature_selector.joblib'))
-        feature_mask = load(os.path.join(models_folder, 'AntigenPred_feature_mask.joblib'))
-        all_feature_names = load(os.path.join(models_folder, 'AntigenPred_all_feature_names.joblib'))
+        svm_model = load(os.path.join(models_folder, 'IApred_SVM.joblib'))
+        scaler = load(os.path.join(models_folder, 'IApred_scaler.joblib'))
+        variance_selector = load(os.path.join(models_folder, 'IApred_variance_selector.joblib'))
+        feature_selector = load(os.path.join(models_folder, 'IApred_feature_selector.joblib'))
+        feature_mask = load(os.path.join(models_folder, 'IApred_feature_mask.joblib'))
+        all_feature_names = load(os.path.join(models_folder, 'IApred_all_feature_names.joblib'))
     except Exception as e:
         print(f"Error loading model files: {str(e)}")
         sys.exit(1)

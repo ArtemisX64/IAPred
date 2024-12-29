@@ -1,171 +1,259 @@
 import numpy as np
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif
-from sklearn.svm import SVC
-from imblearn.over_sampling import SMOTE
+import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import logging
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.svm import SVC
+from sklearn.inspection import permutation_importance
+from imblearn.over_sampling import SMOTE
 import os
-import csv
 import argparse
 from functions_for_training import (
     read_multiple_fasta,
     sequences_to_vectors,
-    remove_constant_features,
-    get_feature_importance
+    remove_constant_features
 )
 
-# Set up logging
-logging.basicConfig(filename='experiment.log', level=logging.INFO, 
-                   format='%(asctime)s - %(levelname)s - %(message)s')
 
-def ensure_dir_exists(dir_path):
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
 
-def plot_feature_correlation_with_importance(X, feature_names, importances, sort=False):
-    if sort:
-        sorted_indices = np.argsort(importances)[::-1]
-        feature_names = [feature_names[i] for i in sorted_indices]
-        importances = importances[sorted_indices]
-        X = X[:, sorted_indices]
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.svm import SVC
+from sklearn.inspection import permutation_importance
+from imblearn.over_sampling import SMOTE
+import os
+import argparse
 
-    corr = np.corrcoef(X.T)
+def get_feature_importance(model, X, y):
+    """Calculate normalized feature importance where absolute values sum to 1"""
+    # Get raw importance scores
+    result = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=-1)
+    raw_importance = result.importances_mean
+    
+    # Normalize by sum of absolute values to get relative contributions
+    total_absolute_importance = np.sum(np.abs(raw_importance))
+    normalized_importance = raw_importance / total_absolute_importance
+    
+    return normalized_importance
 
+def save_importance_scores(feature_names, importance_scores, output_dir):
+    """
+    Save feature contribution scores to CSV with inverted values
+    """
+    # Invert the importance scores
+    inverted_importance_scores = -1 * importance_scores
+    
+    results = pd.DataFrame({
+        'Number': range(1, len(feature_names) + 1),
+        'Feature': feature_names,
+        'Importance': inverted_importance_scores
+    })
+    
+    # Verify normalization before saving
+    abs_sum = np.sum(np.abs(results['Importance'].values))
+    print(f"\nVerification before saving:")
+    print(f"Sum of absolute contributions: {abs_sum:.6f}")
+    print(f"Min contribution: {results['Importance'].min():.1%}")
+    print(f"Max contribution: {results['Importance'].max():.1%}")
+    
+    # Save to CSV
+    csv_path = os.path.join(output_dir, 'feature_importance.csv')
+    results.to_csv(csv_path, index=False)
+    print(f"\nFeature contributions saved to {csv_path}")
+    
+    return csv_path
+
+def create_visualization(X_selected, csv_path, output_dir):
+    """
+    Create visualization combining correlation heatmap and feature contribution histogram.
+    The feature contributions are normalized so their absolute values sum to 1.
+    Values are inverted only for visualization.
+    """
+    # Read the contributions
+    importance_df = pd.read_csv(csv_path)
+    
+    # Create figure with appropriate dimensions
     fig = plt.figure(figsize=(20, 23))
     gs = fig.add_gridspec(23, 20)
-
+    
+    # Plot correlation heatmap
     ax_heatmap = fig.add_subplot(gs[:20, :18])
-
+    corr = np.corrcoef(X_selected.T)
     im = ax_heatmap.imshow(corr, aspect='auto', cmap='coolwarm', vmin=-1, vmax=1)
-
-    def shorten_feature_name(name, max_length=30):
-        return name[:max_length-3] + '...' if len(name) > max_length else name
-
-    shortened_labels = [shorten_feature_name(name) for name in feature_names]
-
-    ax_heatmap.set_yticks(range(len(feature_names)))
-    ax_heatmap.set_yticklabels(shortened_labels, fontsize=8)
-
+    
+    # Handle feature names
+    def shorten_name(name, max_len=30):
+        return name if len(name) <= max_len else name[:max_len-3] + '...'
+    
+    feature_names = importance_df['Feature'].apply(shorten_name).values
+    
+    # Set heatmap labels
     ax_heatmap.set_xticks(range(len(feature_names)))
-    ax_heatmap.set_xticklabels(shortened_labels, rotation=90, ha='left', fontsize=7)
-
+    ax_heatmap.set_yticks(range(len(feature_names)))
+    ax_heatmap.set_xticklabels(feature_names, rotation=90, ha='left', fontsize=7)
+    ax_heatmap.set_yticklabels(feature_names, fontsize=8)
     ax_heatmap.xaxis.set_ticks_position('top')
-    ax_heatmap.xaxis.set_label_position('top')
-
-    ax_hist = fig.add_subplot(gs[:20, 18:])
-    ax_hist.barh(range(len(importances)), importances, align='edge', height=1)
-    ax_hist.set_ylim(0, len(importances))
-
-    max_importance = max(abs(min(importances)), abs(max(importances)))
-    ax_hist.set_xlim(-max_importance, max_importance)
-    ax_hist.set_xticks([-max_importance, 0, max_importance])
-    ax_hist.set_xticklabels([f'{-max_importance:.3f}', '0', f'{max_importance:.3f}'])
-    ax_hist.set_yticks([])
-
+    
+    # Add colorbar for correlation
     cbar_ax = fig.add_subplot(gs[21:22, :18])
     plt.colorbar(im, cax=cbar_ax, orientation='horizontal', label='Correlation')
+    
+    # Plot feature contributions histogram with inverted values
+    ax_hist = fig.add_subplot(gs[:20, 18:])
+    contributions = -1 * importance_df['Importance'].values  # Invert the values only for visualization
+    
+    # Create bars with diverging colors
+    colors = ['#4B4BFF' if c > 0 else '#FF4B4B' for c in contributions]
+    bars = ax_hist.barh(range(len(contributions)-1, -1, -1), contributions,
+                       align='center', height=0.8, color=colors)
+    
+    # Add light gridlines
+    ax_hist.grid(True, axis='x', linestyle='--', alpha=0.2, color='gray')
+    
+    # Set histogram limits and ticks
+    ax_hist.set_ylim(-0.5, len(contributions) - 0.5)
+    
+    # Set symmetric limits based on max absolute value
+    max_abs_value = max(abs(contributions.min()), abs(contributions.max()))
+    margin = max_abs_value * 0.05
+    ax_hist.set_xlim(-max_abs_value - margin, max_abs_value + margin)
+    
+    # Format x-axis ticks as percentages
+    major_ticks = [-max_abs_value, 0, max_abs_value]
+    ax_hist.set_xticks(major_ticks)
+    ax_hist.set_xticklabels([f'{x:.1%}' for x in major_ticks])
+    
+    # Add minor ticks for better readability
+    minor_ticks = np.linspace(-max_abs_value, max_abs_value, 11)
+    ax_hist.set_xticks(minor_ticks, minor=True)
+    
+    # Remove y-axis ticks
+    ax_hist.set_yticks([])
+    
+    # Add zero line
+    ax_hist.axvline(x=0, color='black', linewidth=0.5, alpha=0.5)
+    
+    # Customize spines
+    for spine in ax_hist.spines.values():
+        spine.set_linewidth(0.5)
+    
+    # Titles and labels
+    plt.suptitle('Feature Correlation', y=1, fontsize=17)
+    ax_hist.set_title('Relative\nFeature\nImportance', pad=45, fontsize=12)
+    ax_hist.set_xlabel('Contribution to Model', fontsize=10, labelpad=10)
+    
+    # Print verification info
+    abs_sum = np.sum(np.abs(contributions))
+    print(f"\nVerification:")
+    print(f"Sum of absolute contributions: {abs_sum:.6f}")
+    print(f"Range of contributions: [{contributions.min():.1%}, {contributions.max():.1%}]")
+    
+    # Save plot with high quality
+    plt.tight_layout()
+    plot_path = os.path.join(output_dir, 'feature_analysis.png')
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight', facecolor='white')
+    print(f"Visualization saved to {plot_path}")
 
-    plt.suptitle('Feature Correlation and Importance Analysis', y=0.95, fontsize=17)
-    ax_hist.set_title('Feature \nImportance', pad=45, fontsize=12)
-
-    plt.subplots_adjust(hspace=0.3)
-
-    ensure_dir_exists('TrainingResults')
-    plt.savefig(os.path.join('TrainingResults', 'feature_correlation_importance.png'), dpi=300, bbox_inches='tight')
-    print("Plot has been saved in TrainingResults/feature_correlation_importance.png")
-#    plt.show()
-
-def save_feature_importances_to_csv(feature_names, importances, filename, sort=False):
-    if sort:
-        sorted_indices = np.argsort(importances)[::-1]
-        feature_names = [feature_names[i] for i in sorted_indices]
-        importances = importances[sorted_indices]
-
-    ensure_dir_exists('TrainingResults')
-    filepath = os.path.join('TrainingResults', filename)
-    with open(filepath, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Number', 'Feature', 'Importance'])
-        for i, (feature, importance) in enumerate(zip(feature_names, importances), 1):
-            writer.writerow([i, feature, importance])
-    print(f"Feature importances have been saved to '{filepath}'")
-
-def analyze_features(X, y, feature_names, k=119, C=1, gamma=0.01):
+def analyze_and_select_features(X, y, feature_names, k=119):
+    """
+    Analyze features and select top k features using f_classif
+    """
+    print(f"\nStarting feature analysis with {len(feature_names)} features...")
+    
+    # Encode labels
     le = LabelEncoder()
     y_encoded = le.fit_transform(y)
-
+    
+    # Balance classes using SMOTE
     smote = SMOTE(random_state=42)
     X_resampled, y_resampled = smote.fit_resample(X, y_encoded)
-
-    variance_selector = VarianceThreshold(threshold=0)
-    X_var_selected = variance_selector.fit_transform(X_resampled)
-
+    
+    # Scale features
     scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_var_selected)
-
+    X_scaled = scaler.fit_transform(X_resampled)
+    
+    # Select top k features
     selector = SelectKBest(f_classif, k=k)
     X_selected = selector.fit_transform(X_scaled, y_resampled)
-    selected_feature_mask = selector.get_support()
-    selected_feature_names = [name for name, selected in zip(feature_names, selected_feature_mask) if selected]
-
-    model = SVC(kernel='rbf', C=C, gamma=gamma, probability=True, random_state=42)
+    feature_mask = selector.get_support()
+    
+    # Get selected feature names
+    selected_features = [name for name, selected in zip(feature_names, feature_mask) if selected]
+    
+    print(f"Selected {len(selected_features)} features")
+    
+    # Train SVM model
+    model = SVC(kernel='rbf', probability=True, random_state=42)
     model.fit(X_selected, y_resampled)
+    
+    # Calculate normalized feature contributions
+    importance_scores = get_feature_importance(model, X_selected, y_resampled)
+    
+    # Verify normalization
+    abs_sum = np.sum(np.abs(importance_scores))
+    print(f"Sum of absolute contributions: {abs_sum:.6f}")
+    
+    return X_selected, selected_features, importance_scores
 
-    importance = get_feature_importance(model, X_selected, y_resampled)
-
-    return X_selected, selected_feature_names, importance
 
 def main():
+    # Parse arguments
     parser = argparse.ArgumentParser(description='Analyze feature importance')
-    parser.add_argument('--k', type=int, default=119,
-                      help='Number of features to select (default: 119)')
+    parser.add_argument('--k', type=int, default=529,
+                      help='Number of features to select (default: 529)')
     parser.add_argument('--c', type=float, default=1,
                       help='SVM C parameter (default: 1)')
     parser.add_argument('--gamma', type=float, default=0.01,
                       help='SVM gamma parameter (default: 0.01)')
-    parser.add_argument('--sort', action='store_true',
-                      help='Sort features by importance (default: False)')
     args = parser.parse_args()
-
-
+    
+    # Create output directory
+    output_dir = 'TrainingResults'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Load sequences
+    print("Loading sequences...")
     antigens_dir = "antigens"
     non_antigens_dir = "non-antigens"
     
     antigen_files = [os.path.join(antigens_dir, f) for f in os.listdir(antigens_dir) if f.endswith('.fasta')]
     non_antigen_files = [os.path.join(non_antigens_dir, f) for f in os.listdir(non_antigens_dir) if f.endswith('.fasta')]
-
-    print("Reading sequences...")
+    
     antigens = read_multiple_fasta(antigen_files)
     non_antigens = read_multiple_fasta(non_antigen_files)
     
+    # Create labels
     all_sequences = antigens + non_antigens
     labels = np.array(['antigen'] * len(antigens) + ['non-antigen'] * len(non_antigens))
-
-    if len(all_sequences) == 0:
-        print("Error: No sequences were loaded")
+    
+    if not all_sequences:
+        print("Error: No sequences loaded")
         return
-
-    print("\nExtracting features...")
+    
+    # Extract features
+    print("Extracting features...")
     X, feature_names, failed_indices = sequences_to_vectors(all_sequences)
-
+    
     if len(failed_indices) > 0:
-        failed_indices = failed_indices.astype(int)
         labels = np.delete(labels, failed_indices)
-
-    X_filtered, feature_mask, feature_names_filtered = remove_constant_features(X, feature_names)
-    print(f"Removed {len(feature_names) - len(feature_names_filtered)} constant features")
-
-    print("\nAnalyzing features...")
-    X_selected, feature_names, importance = analyze_features(
-        X_filtered, labels, feature_names_filtered, 
-        k=args.k, C=args.c, gamma=args.gamma
+    
+    # Remove constant features
+    X_filtered, _, feature_names_filtered = remove_constant_features(X, feature_names)
+    
+    # Analyze and select features
+    X_selected, selected_features, importance_scores = analyze_and_select_features(
+        X_filtered, labels, feature_names_filtered, k=args.k
     )
-
-    plot_feature_correlation_with_importance(X_selected, feature_names, importance, sort=args.sort)
-    save_feature_importances_to_csv(feature_names, importance, 'feature_importances.csv', sort=args.sort)
+    
+    # Save importance scores
+    csv_path = save_importance_scores(selected_features, importance_scores, output_dir)
+    
+    # Create visualization
+    create_visualization(X_selected, csv_path, output_dir)
 
 if __name__ == "__main__":
     main()

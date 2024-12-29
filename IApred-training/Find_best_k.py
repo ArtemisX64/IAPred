@@ -175,9 +175,11 @@ def main():
         print(f"Number of features retained: {len(feature_names_filtered)}")
 
         total_features = X_filtered.shape[1]
-        k_values = list(range(1, min(201, total_features + 1)))
-        if total_features > 200:
-            k_values.extend(range(225, total_features + 1, 25))
+        k_values = list(range(1, min(1001, total_features + 1)))
+#        if total_features > 200:
+#            k_values.extend(range(225, total_features + 1, 25))
+
+
 
         roc_auc_scores = []
 

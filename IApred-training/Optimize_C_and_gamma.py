@@ -106,8 +106,8 @@ def optimize_parameters(X, y, k=119):
 
 def main():
     parser = argparse.ArgumentParser(description='Optimize SVM parameters')
-    parser.add_argument('--k', type=int, default=119,
-                      help='Number of features to select (default: 119)')
+    parser.add_argument('--k', type=int, default=529,
+                      help='Number of features to select (default: 529)')
     args = parser.parse_args()
 
     antigens_dir = "antigens"

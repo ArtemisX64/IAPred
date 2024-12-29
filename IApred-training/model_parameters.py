@@ -69,14 +69,31 @@ def plot_precision_recall_curve(y_true, y_scores):
 
 def plot_confusion_matrix(y_true, y_pred):
     cm = confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    
+    # Calculate percentages for each row
+    row_sums = cm.sum(axis=1, keepdims=True)
+    cm_percentages = (cm / row_sums * 100).round(1)
+    
+    # Create annotation text with both count and percentage
+    annotations = []
+    for i in range(cm.shape[0]):
+        row_annotations = []
+        for j in range(cm.shape[1]):
+            count = cm[i, j]
+            percentage = cm_percentages[i, j]
+            row_annotations.append(f'{count}\n({percentage}%)')
+        annotations.append(row_annotations)
+            
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=annotations, fmt='', cmap='Blues', 
+                annot_kws={'size': 12, 'ha': 'center', 'va': 'center'})
     plt.title('Confusion Matrix')
     plt.ylabel('True Antigens')
     plt.xlabel('Predicted Antigens')
     
     ensure_dir_exists('TrainingResults')
-    plt.savefig(os.path.join('TrainingResults', 'confusion_matrix.png'), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join('TrainingResults', 'confusion_matrix.png'), 
+                dpi=300, bbox_inches='tight')
     #plt.show()
 
 def analyze_errors(model, X, y, feature_names, results_file):

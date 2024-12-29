@@ -153,8 +153,8 @@ def cross_validate_model_lopo(X, y, model, category_a_files, category_b_files, s
 
 def main():
     parser = argparse.ArgumentParser(description='Perform LOPO-CV')
-    parser.add_argument('--k', type=int, default=119,
-                      help='Number of features to select (default: 119)')
+    parser.add_argument('--k', type=int, default=529,
+                      help='Number of features to select (default: 529)')
     parser.add_argument('--c', type=float, default=1,
                       help='SVM C parameter (default: 1)')
     parser.add_argument('--gamma', type=float, default=0.01,

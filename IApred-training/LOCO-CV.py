@@ -223,15 +223,15 @@ def cross_validate_model_loco(X, y, model, category_a_files, category_b_files, s
 
 def main():
     parser = argparse.ArgumentParser(description='Perform LOCO-CV')
-    parser.add_argument('--k', type=int, default=119,
-                      help='Number of features to select (default: 119)')
+    parser.add_argument('--k', type=int, default=529,
+                      help='Number of features to select (default: 529)')
     parser.add_argument('--c', type=float, default=1,
                       help='SVM C parameter (default: 1)')
     parser.add_argument('--gamma', type=float, default=0.01,
                       help='SVM gamma parameter (default: 0.01)')
     args = parser.parse_args()
 
-   SVM_PARAMS = {
+    SVM_PARAMS = {
         'C': args.c,
         'gamma': args.gamma,
         'kernel': 'rbf',

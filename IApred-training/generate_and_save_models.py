@@ -71,8 +71,8 @@ def train_and_save_model(X, y, feature_names, k=119, C=1, gamma=0.01):
 
 def main():
     parser = argparse.ArgumentParser(description='Train model with 10-fold cross-validation')
-    parser.add_argument('--k', type=int, default=119,
-                      help='Number of features to select (default: 119)')
+    parser.add_argument('--k', type=int, default=529,
+                      help='Number of features to select (default: 529)')
     parser.add_argument('--c', type=float, default=1,
                       help='SVM C parameter (default: 1)')
     parser.add_argument('--gamma', type=float, default=0.01,

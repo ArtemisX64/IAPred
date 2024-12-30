@@ -23,6 +23,7 @@ Run scripts individually with parameters. If no parameters are assigned, each sc
 - `--k` (number of features, default 529)
 - `--c` (SVM C parameter, default 1) 
 - `--gamma` (SVM gamma parameter, default 0.01)
+(Find_best_k.py does not takes arguments, Optimize_C_and_gamma.py only takes --k argument)
 
 ```bash
 python 10fold_CV.py --k 150 --c 0.1 --gamma 0.1

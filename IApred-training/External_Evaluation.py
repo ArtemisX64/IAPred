@@ -13,7 +13,6 @@ from sklearn.metrics import (
 from sklearn.calibration import calibration_curve
 
 def calculate_chi_square(prob_true, prob_pred, epsilon=1e-10):
-    """Calculate chi-square with protection against division by zero"""
     valid_mask = prob_pred > epsilon
     if not np.any(valid_mask):
         return 0
@@ -28,7 +27,6 @@ def classify_vaxijen2(row):
         return 1 if row['VaxiJen 2.0'] >= 0.5 else 0
 
 def process_dataframe(df, is_antigen=True):
-    # Initialize prediction columns
     df['ANTIGENpro_pred'] = (df['ANTIGENpro'] >= 0.5).astype(int)
     df['VaxiJen2_pred'] = df.apply(classify_vaxijen2, axis=1)
     df['VaxiJen3_pred'] = (df['Vaxijen 3.0'] >= 0.5).astype(int)
@@ -79,7 +77,6 @@ def update_csv_with_predictions(csv_path, model, scaler, variance_selector, feat
     logging.info(f"Updated {csv_path} with predictions")
 
 def create_agreement_plot():
-    # Read CSV files from the TrainingResults folder
     antigens_df = pd.read_csv('TrainingResults/External_evaluation_antigens.csv')
     non_antigens_df = pd.read_csv('TrainingResults/External_evaluation_non-antigens.csv')
     
@@ -149,11 +146,9 @@ def create_agreement_plot():
     plt.close()
 
 def create_calibration_plot():
-    # Read CSV files from the TrainingResults folder
     antigens_df = pd.read_csv('TrainingResults/External_evaluation_antigens.csv')
     non_antigens_df = pd.read_csv('TrainingResults/External_evaluation_non-antigens.csv')
     
-    # Score ranges for normalization
     score_ranges = {
         'IApred': (-2.12, 2),
         'ANTIGENpro': (0, 1),
@@ -206,7 +201,6 @@ def create_calibration_plot():
     plt.close()
 
 def create_performance_matrix():
-    # Read CSV files from the TrainingResults folder
     antigens_df = pd.read_csv('TrainingResults/External_evaluation_antigens.csv')
     non_antigens_df = pd.read_csv('TrainingResults/External_evaluation_non-antigens.csv')
     
@@ -319,7 +313,6 @@ def create_performance_matrix():
     metrics_df.round(3).to_csv('TrainingResults/PerformanceMetrics.csv')
 
 def create_roc_comparison():
-    # Read CSV files from the TrainingResults folder
     antigens_df = pd.read_csv('TrainingResults/External_evaluation_antigens.csv')
     non_antigens_df = pd.read_csv('TrainingResults/External_evaluation_non-antigens.csv')
 

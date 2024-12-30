@@ -14,22 +14,7 @@ from functions_for_training import (
     remove_constant_features
 )
 
-
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.svm import SVC
-from sklearn.inspection import permutation_importance
-from imblearn.over_sampling import SMOTE
-import os
-import argparse
-
 def get_feature_importance(model, X, y):
-    """Calculate normalized feature importance where absolute values sum to 1"""
-    # Get raw importance scores
     result = permutation_importance(model, X, y, n_repeats=10, random_state=42, n_jobs=-1)
     raw_importance = result.importances_mean
     
@@ -40,12 +25,7 @@ def get_feature_importance(model, X, y):
     return normalized_importance
 
 def save_importance_scores(feature_names, importance_scores, output_dir):
-    """
-    Save feature contribution scores to CSV with inverted values
-    """
-    # Invert the importance scores
     inverted_importance_scores = -1 * importance_scores
-    
     results = pd.DataFrame({
         'Number': range(1, len(feature_names) + 1),
         'Feature': feature_names,
@@ -67,12 +47,6 @@ def save_importance_scores(feature_names, importance_scores, output_dir):
     return csv_path
 
 def create_visualization(X_selected, csv_path, output_dir):
-    """
-    Create visualization combining correlation heatmap and feature contribution histogram.
-    The feature contributions are normalized so their absolute values sum to 1.
-    Values are inverted only for visualization.
-    """
-    # Read the contributions
     importance_df = pd.read_csv(csv_path)
     
     # Create figure with appropriate dimensions
@@ -126,7 +100,7 @@ def create_visualization(X_selected, csv_path, output_dir):
     ax_hist.set_xticks(major_ticks)
     ax_hist.set_xticklabels([f'{x:.1%}' for x in major_ticks])
     
-    # Add minor ticks for better readability
+    # Add minor ticks
     minor_ticks = np.linspace(-max_abs_value, max_abs_value, 11)
     ax_hist.set_xticks(minor_ticks, minor=True)
     
@@ -151,16 +125,13 @@ def create_visualization(X_selected, csv_path, output_dir):
     print(f"Sum of absolute contributions: {abs_sum:.6f}")
     print(f"Range of contributions: [{contributions.min():.1%}, {contributions.max():.1%}]")
     
-    # Save plot with high quality
+    # Save plot
     plt.tight_layout()
     plot_path = os.path.join(output_dir, 'feature_analysis.png')
     plt.savefig(plot_path, dpi=300, bbox_inches='tight', facecolor='white')
     print(f"Visualization saved to {plot_path}")
 
 def analyze_and_select_features(X, y, feature_names, k=119):
-    """
-    Analyze features and select top k features using f_classif
-    """
     print(f"\nStarting feature analysis with {len(feature_names)} features...")
     
     # Encode labels

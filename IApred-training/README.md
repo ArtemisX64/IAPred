@@ -8,7 +8,7 @@ Training pipeline for IApred (Intrinsic Antigenicity Predictor).
 
 ## 📋 Overview
 
-This repository contains the training pipeline for IApred's SVM-based model. All scripts can run independently or together via `run_training.py`. Feel free to modify the initial antigens and non-antigens in search for an improved model
+This repository contains the training pipeline for IApred's SVM-based model. All scripts can run independently or together via `run_training.py`. Feel free to modify the initial antigens and non-antigens in search for an improved model (if new organisms are added, ensure to modify LOCO-CV.py to include the hardcoded organisms)
 
 ## 🚀 Usage Options
 

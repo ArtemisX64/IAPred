@@ -59,7 +59,7 @@ python 10fold_CV.py --k 150 --c 0.1 --gamma 0.1
 
 Results are saved in `TrainingResults/`
 
-Models are saved in `Models/`
+Models are saved in `models/`
 
 
 ## 📝 Requirements

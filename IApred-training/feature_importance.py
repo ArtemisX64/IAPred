@@ -64,12 +64,16 @@ def create_visualization(X_selected, csv_path, output_dir):
     
     feature_names = importance_df['Feature'].apply(shorten_name).values
     
-    # Set heatmap labels
-    ax_heatmap.set_xticks(range(len(feature_names)))
-    ax_heatmap.set_yticks(range(len(feature_names)))
-    ax_heatmap.set_xticklabels(feature_names, rotation=90, ha='left', fontsize=7)
-    ax_heatmap.set_yticklabels(feature_names, fontsize=8)
-    ax_heatmap.xaxis.set_ticks_position('top')
+    # Set heatmap labels only if the number of features is less than 150
+    if len(feature_names) < 150:
+        ax_heatmap.set_xticks(range(len(feature_names)))
+        ax_heatmap.set_yticks(range(len(feature_names)))
+        ax_heatmap.set_xticklabels(feature_names, rotation=90, ha='left', fontsize=7)
+        ax_heatmap.set_yticklabels(feature_names, fontsize=8)
+        ax_heatmap.xaxis.set_ticks_position('top')
+    else:
+        ax_heatmap.set_xticks([])
+        ax_heatmap.set_yticks([])
     
     # Add colorbar for correlation
     cbar_ax = fig.add_subplot(gs[21:22, :18])

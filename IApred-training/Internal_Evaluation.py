@@ -222,7 +222,7 @@ $ - Significant difference between non-antigens and proteome (p < 0.05)
 """
 
         format_legend = """
-Values format: mean ± std (n, x, y, z)
+Values format: mean ± std (n; x; y; z)
 where:
 n - total number of analyzed proteins
 x - number of proteins with score ≥ 0

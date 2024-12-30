@@ -21,11 +21,7 @@ def check_and_install_dependencies():
     print("All required modules are now installed.")
 
 def create_ascii_visualization(score):
-    """
-    Create an ASCII visualization with indicator position based on dashes
-    and centered score display.
-    """
-    # Create the base visualization with exactly 30 dashes on each side
+    # Create the base visualization with 30 dashes on each side
     left_side = "-" * 30
     right_side = "-" * 30
     
@@ -67,7 +63,6 @@ def create_ascii_visualization(score):
     return visualization
 
 def process_fasta_file(fasta_file, output_csv, model, scaler, variance_selector, feature_selector, feature_mask, all_feature_names, quiet=False):
-    """Process FASTA file with sequences, classifying into three antigenicity categories."""
     results = []
     low_antigenicity_count = 0
     moderate_antigenicity_count = 0
@@ -166,7 +161,6 @@ def process_fasta_file(fasta_file, output_csv, model, scaler, variance_selector,
     return results, low_antigenicity_count, moderate_antigenicity_count, high_antigenicity_count
 
 def main():
-    # Check and install dependencies
     check_and_install_dependencies()
     
     # Parse command line arguments

@@ -1,6 +1,8 @@
 numpy
 biopython
-scikit-learn==1.5.2
+scikit-learn
 joblib
-#imbalanced-learn
+imbalanced-learn
 scipy
+matplotlib
+seaborn
